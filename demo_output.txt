@@ -1,0 +1,17 @@
+API PERFORMANCE MONITOR — DEMO OUTPUT
+==========================================
+Requests Tested     : 5
+Successful Requests : 4
+Failed Requests     : 1
+Success Rate        : 80.0%
+Average Response    : 346.92 ms
+Fastest Response    : 142.70 ms
+Slowest Response    : 1034.50 ms
+
+REQUEST LOG
+------------------------------------------
+200     184.20 ms  SUCCESS  https://httpbin.org/get
+200     142.70 ms  SUCCESS  https://httpbin.org/status/200
+404     161.40 ms  FAILED   https://httpbin.org/status/404
+200     211.80 ms  SUCCESS  https://example.com
+200    1034.50 ms  SUCCESS  https://httpbin.org/delay/1

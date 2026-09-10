@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API Performance Monitor</title>
+<style>
+*{box-sizing:border-box} body{margin:0;background:#f4f7fb;color:#172033;font-family:Arial,sans-serif}
+header{background:#1d3b8f;color:#fff;padding:25px 6%;display:flex;justify-content:space-between;align-items:center}
+h1{margin:0;font-size:28px} header p{margin:7px 0 0;color:#dbeafe}.brand{font-weight:bold}
+.wrap{width:88%;margin:28px auto}.checker,.panel,.metric{background:#fff;border-radius:14px;box-shadow:0 4px 18px #dfe6f1}
+.checker{padding:20px}.checker h2,.panel h2{margin-top:0}
+form{display:flex;gap:10px}input{flex:1;padding:13px;border:1px solid #d5dce8;border-radius:8px;font-size:15px}
+button{border:0;border-radius:8px;padding:12px 20px;background:#1d3b8f;color:white;font-weight:bold;cursor:pointer}
+button.secondary{background:#e9eef8;color:#1d3b8f}.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:18px 0}
+.metric{padding:18px}.label{font-size:12px;color:#64748b}.value{font-size:25px;font-weight:bold;margin-top:7px}
+.grid{display:grid;grid-template-columns:1.4fr .6fr;gap:18px}.panel{padding:20px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #e7ebf2;font-size:13px}
+th{color:#64748b}.ok{color:#15803d;font-weight:bold}.bad{color:#b45309;font-weight:bold}
+.bar{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:12px 0}.bar>div{height:100%;background:#2563eb}
+#msg{margin-top:12px;font-size:13px;color:#475569}.muted{color:#64748b;font-size:13px}
+@media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}form{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+<div><h1>API Performance Monitor</h1><p>Flask + Requests + SQLite</p></div>
+<div class="brand">Codec Technologies Internship Project</div>
+</header>
+<div class="wrap">
+<div class="checker">
+<h2>Test an API Endpoint</h2>
+<form id="form">
+<input id="url" name="url" value="https://httpbin.org/get" placeholder="https://example.com/api">
+<button type="submit">Check API</button>
+<button type="button" class="secondary" onclick="clearLogs()">Clear Logs</button>
+</form>
+<div id="msg">Enter an endpoint and click “Check API”.</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="label">REQUESTS</div><div class="value" id="total">{{total}}</div></div>
+<div class="metric"><div class="label">SUCCESSFUL</div><div class="value" id="successful">{{successful}}</div></div>
+<div class="metric"><div class="label">FAILED</div><div class="value" id="failed">{{failed}}</div></div>
+<div class="metric"><div class="label">AVG RESPONSE</div><div class="value" id="avg">{{avg}} ms</div></div>
+<div class="metric"><div class="label">SUCCESS RATE</div><div class="value" id="rate">{{success_rate}}%</div></div>
+</div>
+
+<div class="grid">
+<div class="panel">
+<h2>Recent API Checks</h2>
+<table id="logtable"><tr><th>URL</th><th>Status</th><th>Response</th><th>Result</th><th>Time</th></tr>
+{% for x in logs %}
+<tr><td>{{x.url}}</td><td>{{x.status_code or '—'}}</td><td>{{x.response_time}} ms</td>
+<td class="{{'ok' if x.success else 'bad'}}">{{'SUCCESS' if x.success else 'FAILED'}}</td><td>{{x.checked_at}}</td></tr>
+{% endfor %}
+</table>
+{% if not logs %}<p class="muted">No checks yet. Run your first API test above.</p>{% endif %}
+</div>
+<div class="panel">
+<h2>Response-Time Summary</h2>
+<p>Fastest</p><h2>{{fastest}} ms</h2>
+<p>Slowest</p><h2>{{slowest}} ms</h2>
+<div class="bar"><div style="width:{{ [success_rate,100]|min }}%"></div></div>
+<p class="muted">{{success_rate}}% of recorded requests were successful.</p>
+</div>
+</div>
+</div>
+<script>
+document.getElementById('form').addEventListener('submit', async e=>{
+ e.preventDefault();
+ const url=document.getElementById('url').value;
+ const fd=new FormData(); fd.append('url',url);
+ document.getElementById('msg').textContent='Checking API...';
+ try{
+   const r=await fetch('/check',{method:'POST',body:fd});
+   const d=await r.json();
+   if(!r.ok){document.getElementById('msg').textContent=d.error;return;}
+   document.getElementById('msg').textContent=
+     `${d.success?'Success':'Failed'} — HTTP ${d.status_code??'N/A'} — ${d.response_time} ms`;
+   setTimeout(()=>location.reload(),500);
+ }catch(err){document.getElementById('msg').textContent='Request error: '+err}
+});
+async function clearLogs(){
+ await fetch('/clear',{method:'POST'});
+ location.reload();
+}
+</script>
+</body>
+</html>

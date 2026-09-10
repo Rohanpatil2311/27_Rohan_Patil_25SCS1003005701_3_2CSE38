@@ -1,0 +1,42 @@
+PROJECT TITLE: API Performance Monitor
+
+Problem Statement:
+APIs are critical to modern applications, but slow responses and failed requests can reduce application reliability. Manually checking API behavior makes it difficult to compare performance over time.
+
+Objective:
+Build a Python-based monitoring tool that sends GET requests, measures response time, records HTTP status codes and errors, stores logs in SQLite, and presents performance insights in a Flask dashboard.
+
+Architecture:
+User → Flask Dashboard → Requests Library → API Endpoint
+                         ↓
+                     Response Time + Status
+                         ↓
+                       SQLite
+                         ↓
+                   Metrics Dashboard
+
+Key Features:
+1. API endpoint testing
+2. Response-time measurement
+3. HTTP status monitoring
+4. Success/failure tracking
+5. SQLite logging
+6. Average/fastest/slowest response metrics
+7. Success-rate calculation
+8. Browser dashboard
+
+Demo Results:
+5 requests tested
+4 successful
+1 failed
+80% success rate
+Average response: 346.92 ms
+Fastest: 142.70 ms
+Slowest: 1034.50 ms
+
+PPT screenshots:
+- VS Code project files
+- Terminal running Flask
+- Browser dashboard before testing
+- Browser dashboard after several tests
+- SQLite/database file
